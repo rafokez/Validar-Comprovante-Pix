@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Documentação da API</h1>
+    <p>Bem-vindo à documentação da API para validação de documentos.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Endpoints Disponíveis</h2>
+      <ul>
+        <li>
+          <h3>1. Validar Comprovante PIX</h3>
+          <p><strong>Endpoint:</strong> <code>/api/validate</code></p>
+          <p><strong>Método:</strong> POST</p>
+          <p><strong>Descrição:</strong> Valida se a imagem enviada é um comprovante PIX.</p>
+          <p><strong>Exemplo de Requisição:</strong></p>
+          <pre>
+curl -X POST -F "file=@caminho_para_imagem" http://localhost:3000/api/validate
+          </pre>
+          <p><strong>Exemplo de Resposta:</strong></p>
+          <pre>
+{
+  "success": true,
+  "isValid": true,
+  "patternsMatched": 3,
+  "extractedText": "Texto extraído da imagem"
+}
+          </pre>
+        </li>
+        <li>
+          <h3>2. Validar CTF IBAMA</h3>
+          <p><strong>Endpoint:</strong> <code>/api/validate/ctf-ibama</code></p>
+          <p><strong>Método:</strong> POST</p>
+          <p><strong>Descrição:</strong> Valida se a imagem enviada é um certificado CTF do IBAMA.</p>
+          <p><strong>Exemplo de Requisição:</strong></p>
+          <pre>
+curl -X POST -F "file=@caminho_para_imagem" http://localhost:3000/api/validate/ctf-ibama
+          </pre>
+        </li>
+        <li>
+          <h3>3. Validar Alvará de Funcionamento</h3>
+          <p><strong>Endpoint:</strong> <code>/api/validate/alvara</code></p>
+          <p><strong>Método:</strong> POST</p>
+          <p><strong>Descrição:</strong> Valida se a imagem enviada é um Alvará de Funcionamento.</p>
+        </li>
+        <li>
+          <h3>4. Validar Licença de Operação</h3>
+          <p><strong>Endpoint:</strong> <code>/api/validate/licenca-operacao</code></p>
+          <p><strong>Método:</strong> POST</p>
+          <p><strong>Descrição:</strong> Valida se a imagem enviada é uma Licença de Operação.</p>
+        </li>
+        <li>
+          <h3>5. Validar AVCB Bombeiro</h3>
+          <p><strong>Endpoint:</strong> <code>/api/validate/avcb-bombeiro</code></p>
+          <p><strong>Método:</strong> POST</p>
+          <p><strong>Descrição:</strong> Valida se a imagem enviada é um Auto de Vistoria do Corpo de Bombeiros.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Formato da Requisição</h2>
+      <p>Certifique-se de enviar um arquivo no campo <code>file</code> em formato multipart/form-data.</p>
+    </section>
+
+    <section>
+      <h2>Erros Comuns</h2>
+      <ul>
+        <li>
+          <strong>400 - Nenhum arquivo enviado</strong>: Certifique-se de incluir o arquivo na requisição.
+        </li>
+        <li>
+          <strong>500 - Erro Interno</strong>: Ocorreu um problema ao processar a imagem. Verifique os logs do servidor.
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>API desenvolvida por Rafael Almeida.</p>
+  </footer>
+</body>
+</html>
