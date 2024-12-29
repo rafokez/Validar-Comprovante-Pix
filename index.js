@@ -8,9 +8,13 @@ const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Configuração explícita para o caminho do arquivo WASM
-const tesseractOptions = {
-  corePath: "/tesseract-core-simd.wasm", // Caminho público do arquivo WASM
-};
+const TESSERACT_WASM_PATH = path.join(__dirname, "tesseract-core-simd.wasm");
+tesseract.create({
+  corePath: `/tesseract-core-simd.wasm`, // Caminho público para o arquivo
+});
+
+// Servir o arquivo .wasm como estático
+app.use("/tesseract-core-simd.wasm", express.static(TESSERACT_WASM_PATH));
 
 // Rota de validação de imagens
 app.post("/api/validate", upload.single("file"), async (req, res) => {
@@ -22,7 +26,7 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
     console.log("Processando a imagem...");
 
     // Usando Tesseract.js para reconhecer texto na imagem
-    const { data: { text } } = await tesseract.recognize(req.file.buffer, "por", tesseractOptions);
+    const { data: { text } } = await tesseract.recognize(req.file.buffer, "por");
 
     console.log("Texto detectado pela OCR:", text);
 
