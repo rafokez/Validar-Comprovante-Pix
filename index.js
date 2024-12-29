@@ -3,6 +3,7 @@ const Tesseract = require("tesseract.js");
 const express = require("express");
 const path = require("path");
 const app = express();
+const corePath = path.join(__dirname, "public", "tesseract-core-simd.wasm");
 
 // Configuração para uploads de arquivos em memória
 const upload = multer({ storage: multer.memoryStorage() });
@@ -21,7 +22,7 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
 
     // Configuração personalizada para o Tesseract.js
     const { data: { text } } = await Tesseract.recognize(req.file.buffer, "por", {
-        corePath: "/tesseract-core-simd.wasm",
+        corePath: corePath, // Caminho absoluto para o .wasm
       });
 
     console.log("Texto extraído:", text);
