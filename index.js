@@ -53,6 +53,19 @@ async function validateDocument(req, res, patterns) {
   }
 }
 
+// Rota de validação de comprovantes PIX
+app.post("/api/validate", upload.single("file"), async (req, res) => {
+  const PIX_PATTERNS = [
+    /pix enviado|transferência pix|comprovante pix/i, // Palavra-chave PIX
+    /\bdata\b.*\bpagamento\b/i, // Data do pagamento
+    /\bhorário\b/i, // Horário
+    /id.*\btransação\b/i, // ID da transação
+    /r\$\s*\d+[.,]?\d*/, // Valores monetários (ex.: R$ 100,00)
+  ];
+
+  return validateDocument(req, res, PIX_PATTERNS);
+});
+
 // Rota para validar CTF IBAMA
 app.post("/api/validate/ctf-ibama", upload.single("file"), (req, res) => {
   const IBAMA_PATTERNS = [
