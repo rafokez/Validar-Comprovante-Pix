@@ -1,5 +1,5 @@
 const multer = require("multer");
-const tesseract = require("tesseract.js");
+const Tesseract = require("tesseract.js");
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -7,14 +7,11 @@ const app = express();
 // Configuração para uploads de arquivos em memória
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Configuração explícita para o caminho do arquivo WASM
-const TESSERACT_WASM_PATH = path.join(__dirname, "tesseract-core-simd.wasm");
-tesseract.create({
-  corePath: `/tesseract-core-simd.wasm`, // Caminho público para o arquivo
-});
+// Configuração do caminho estático para o arquivo WASM
+const wasmPath = "/tesseract-core-simd.wasm";
 
-// Servir o arquivo .wasm como estático
-app.use("/tesseract-core-simd.wasm", express.static(TESSERACT_WASM_PATH));
+// Servir o arquivo .wasm como recurso estático
+app.use("/tesseract-core-simd.wasm", express.static(path.join(__dirname, "tesseract-core-simd.wasm")));
 
 // Rota de validação de imagens
 app.post("/api/validate", upload.single("file"), async (req, res) => {
@@ -25,8 +22,18 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
 
     console.log("Processando a imagem...");
 
-    // Usando Tesseract.js para reconhecer texto na imagem
-    const { data: { text } } = await tesseract.recognize(req.file.buffer, "por");
+    // Configurando o worker do Tesseract.js
+    const worker = Tesseract.createWorker({
+      corePath: wasmPath, // Caminho para o arquivo WASM
+    });
+
+    // Inicializando o worker
+    await worker.load();
+    await worker.loadLanguage("por");
+    await worker.initialize("por");
+
+    // Reconhecendo o texto da imagem
+    const { data: { text } } = await worker.recognize(req.file.buffer);
 
     console.log("Texto detectado pela OCR:", text);
 
@@ -49,6 +56,9 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
     } else {
       console.log("Imagem inválida. Não possui características de um comprovante PIX.");
     }
+
+    // Finalizando o worker
+    await worker.terminate();
 
     return res.status(200).json({ success: true, isValid });
   } catch (error) {
