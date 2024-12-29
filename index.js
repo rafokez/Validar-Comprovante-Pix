@@ -24,7 +24,7 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
 
     // Configurando o worker do Tesseract.js
     const worker = Tesseract.createWorker({
-      corePath: wasmPath, // Caminho para o arquivo WASM
+      corePath: wasmPath, // Caminho público para o arquivo .wasm
     });
 
     // Inicializando o worker
