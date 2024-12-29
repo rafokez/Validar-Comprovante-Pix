@@ -8,8 +8,12 @@
   ],
   "routes": [
     {
+      "src": "/tesseract-core-simd.wasm",
+      "dest": "/tesseract-core-simd.wasm"
+    },
+    {
       "src": "/api/validate",
-      "dest": "index.js"
+      "dest": "/index.js"
     }
   ]
 }
