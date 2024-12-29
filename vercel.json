@@ -1,5 +1,4 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "index.js",
@@ -8,12 +7,12 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "index.js"
+      "src": "/tesseract-core-simd.wasm",
+      "dest": "/public/tesseract-core-simd.wasm"
     },
     {
-      "src": "/api/validate",
-      "dest": "/index.js"
+      "src": "/(.*)",
+      "dest": "index.js"
     }
   ]
 }
