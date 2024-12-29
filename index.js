@@ -1,10 +1,16 @@
 const multer = require("multer");
 const tesseract = require("tesseract.js");
 const express = require("express");
+const path = require("path");
 const app = express();
 
 // Configuração para uploads de arquivos em memória
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Configuração explícita para o caminho do arquivo WASM
+const tesseractOptions = {
+  corePath: "/tesseract-core-simd.wasm", // Caminho público do arquivo WASM
+};
 
 // Rota de validação de imagens
 app.post("/api/validate", upload.single("file"), async (req, res) => {
@@ -16,7 +22,7 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
     console.log("Processando a imagem...");
 
     // Usando Tesseract.js para reconhecer texto na imagem
-    const { data: { text } } = await tesseract.recognize(req.file.buffer, "por");
+    const { data: { text } } = await tesseract.recognize(req.file.buffer, "por", tesseractOptions);
 
     console.log("Texto detectado pela OCR:", text);
 
@@ -47,4 +53,5 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
   }
 });
 
+// Exporta a aplicação para o Vercel
 module.exports = app;
