@@ -1,5 +1,5 @@
 const multer = require("multer");
-const { createWorker } = require("tesseract.js"); // API correta
+const Tesseract = require("tesseract.js");
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -7,42 +7,32 @@ const app = express();
 // Configuração para uploads de arquivos em memória
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Configuração para o caminho estático do arquivo WASM
+// Configuração do caminho estático para o arquivo WASM
 const TESSERACT_WASM_PATH = path.join(__dirname, "tesseract-core-simd.wasm");
 
 // Servir o arquivo .wasm como recurso estático
 app.use("/tesseract-core-simd.wasm", express.static(TESSERACT_WASM_PATH));
 
-// Rota para validar a imagem
+// Rota de validação de imagens
 app.post("/api/validate", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "Nenhum arquivo enviado. Envie uma imagem válida.",
+        message: "Nenhum arquivo enviado. Por favor, envie uma imagem válida.",
       });
     }
 
     console.log("Processando a imagem...");
 
-    // Configurando o worker do Tesseract.js
-    const worker = createWorker({
+    // Configuração personalizada para o Tesseract.js
+    const { data: { text } } = await Tesseract.recognize(req.file.buffer, "por", {
       corePath: "/tesseract-core-simd.wasm", // Caminho público para o arquivo .wasm
     });
 
-    // Inicializando o worker
-    console.log("Inicializando o Tesseract.js...");
-    await worker.load(); // Carregar o worker
-    await worker.loadLanguage("por"); // Carregar o idioma português
-    await worker.initialize("por"); // Inicializar com o idioma português
-
-    // Reconhecendo o texto da imagem
-    console.log("Executando OCR na imagem...");
-    const { data: { text } } = await worker.recognize(req.file.buffer); // OCR no buffer da imagem
-
     console.log("Texto extraído:", text);
 
-    // Padrões comuns de comprovantes PIX
+    // Padrões universais para validar comprovantes PIX
     const PIX_PATTERNS = [
       /pix enviado|transferência pix|comprovante pix/i, // Palavra-chave PIX
       /\bdata\b.*\bpagamento\b/i, // Data do pagamento
@@ -61,10 +51,6 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
         : "A imagem não contém características de um comprovante PIX."
     );
 
-    // Finalizando o worker
-    await worker.terminate();
-
-    // Resposta da API
     return res.status(200).json({
       success: true,
       isValid,
