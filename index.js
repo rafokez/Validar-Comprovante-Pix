@@ -12,8 +12,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
 
-// Rota de validação de imagens
-app.post("/api/validate", upload.single("file"), async (req, res) => {
+// Função genérica para validação
+async function validateDocument(req, res, patterns) {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -24,46 +24,77 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
 
     console.log("Processando a imagem...");
 
-    // Configuração personalizada para o Tesseract.js
+    // Extração de texto com Tesseract.js
     const { data: { text } } = await Tesseract.recognize(req.file.buffer, "por", {
-      corePath: corePath, // Caminho absoluto para o .wasm
+      corePath: corePath,
     });
 
     console.log("Texto extraído:", text);
 
-    // Padrões universais para validar comprovantes PIX
-    const PIX_PATTERNS = [
-      /pix enviado|transferência pix|comprovante pix/i, // Palavra-chave PIX
-      /\bdata\b.*\bpagamento\b/i, // Data do pagamento
-      /\bhorário\b/i, // Horário
-      /id.*\btransação\b/i, // ID da transação
-      /r\$\s*\d+[.,]?\d*/, // Valores monetários (ex.: R$ 100,00)
-    ];
-
-    // Verificar se pelo menos 3 padrões são encontrados
-    const matchedPatterns = PIX_PATTERNS.filter((pattern) => pattern.test(text));
+    // Validação baseada nos padrões
+    const matchedPatterns = patterns.filter((pattern) => pattern.test(text));
     const isValid = matchedPatterns.length >= 3;
 
-    console.log(
-      isValid
-        ? "A imagem foi validada como um comprovante PIX."
-        : "A imagem não contém características de um comprovante PIX."
-    );
+    console.log(isValid ? "Documento validado com sucesso." : "Falha na validação do documento.");
 
     return res.status(200).json({
       success: true,
       isValid,
       patternsMatched: matchedPatterns.length,
-      extractedText: text, // Opcional: Retornar o texto para debug
+      extractedText: text,
     });
   } catch (error) {
     console.error("Erro ao processar a imagem:", error);
     return res.status(500).json({
       success: false,
       message: "Erro interno no processamento da imagem.",
-      error: error.message, // Opcional: Enviar detalhes do erro para debug
+      error: error.message,
     });
   }
+}
+
+// Rota para validar CTF IBAMA
+app.post("/api/validate/ctf-ibama", upload.single("file"), (req, res) => {
+  const IBAMA_PATTERNS = [
+    /registro n\.?/i,
+    /data da consulta/i,
+    /razão social/i,
+    /cnpj/i,
+  ];
+  return validateDocument(req, res, IBAMA_PATTERNS);
+});
+
+// Rota para validar Alvará de Funcionamento
+app.post("/api/validate/alvara", upload.single("file"), (req, res) => {
+  const ALVARA_PATTERNS = [
+    /nº alvará/i,
+    /inscrição municipal/i,
+    /cnpj/i,
+    /válido até/i,
+  ];
+  return validateDocument(req, res, ALVARA_PATTERNS);
+});
+
+// Rota para validar Licença de Operação
+app.post("/api/validate/licenca-operacao", upload.single("file"), (req, res) => {
+  const LICENCA_PATTERNS = [
+    /licença de operação/i,
+    /cnpj/i,
+    /atividade principal/i,
+    /validade até/i,
+  ];
+  return validateDocument(req, res, LICENCA_PATTERNS);
+});
+
+// Rota para validar AVCB Bombeiro
+app.post("/api/validate/avcb-bombeiro", upload.single("file"), (req, res) => {
+  const AVCB_PATTERNS = [
+    /avcb nº/i,
+    /endereço/i,
+    /proprietário/i,
+    /área aprovada/i,
+  ];
+  return validateDocument(req, res, AVCB_PATTERNS);
 });
 
 // Inicia o servidor
