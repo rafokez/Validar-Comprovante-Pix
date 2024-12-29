@@ -4,9 +4,13 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const corePath = path.join(__dirname, "public", "tesseract-core-simd.wasm");
+const port = process.env.PORT || 3000;
 
 // Configuração para uploads de arquivos em memória
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Servir arquivos estáticos
+app.use(express.static(path.join(__dirname, "public")));
 
 // Rota de validação de imagens
 app.post("/api/validate", upload.single("file"), async (req, res) => {
@@ -22,8 +26,8 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
 
     // Configuração personalizada para o Tesseract.js
     const { data: { text } } = await Tesseract.recognize(req.file.buffer, "por", {
-        corePath: corePath, // Caminho absoluto para o .wasm
-      });
+      corePath: corePath, // Caminho absoluto para o .wasm
+    });
 
     console.log("Texto extraído:", text);
 
@@ -62,5 +66,7 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
   }
 });
 
-// Exporta a aplicação para ser usada no Vercel
-module.exports = app;
+// Inicia o servidor
+app.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port}`);
+});
