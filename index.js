@@ -21,8 +21,8 @@ app.post("/api/validate", upload.single("file"), async (req, res) => {
 
     // Configuração personalizada para o Tesseract.js
     const { data: { text } } = await Tesseract.recognize(req.file.buffer, "por", {
-      corePath: "/public/tesseract-core-simd.wasm", // Caminho para o arquivo .wasm
-    });
+        corePath: "/tesseract-core-simd.wasm",
+      });
 
     console.log("Texto extraído:", text);
 
