@@ -1,26 +1,37 @@
-VALIDATE-PIX-IMAGE
-VALIDATE-PIX-IMAGE é uma API desenvolvida para validar se imagens submetidas são comprovantes de transações via Pix, com base nos padrões visuais e textuais utilizados pelos comprovantes de instituições financeiras brasileiras, especialmente o Banco do Brasil.
+# 🔍 VALIDATE-PIX-IMAGE — API de Validação de Comprovantes Pix
 
-🧾 Descrição
-Esta API utiliza técnicas de visão computacional e processamento de imagem para analisar conteúdos visuais de arquivos de imagem (JPG, PNG etc.) e verificar se contêm elementos típicos de um comprovante de pagamento Pix, como:
+**VALIDATE-PIX-IMAGE** é uma API desenvolvida em Node.js que identifica se uma **imagem enviada é um comprovante Pix legítimo**, com foco inicial nos comprovantes emitidos pelo **Banco do Brasil**.
 
-QR Code Pix
+Ela utiliza OCR com **Tesseract.js** e análise textual para detectar elementos típicos como banco emissor, nome, valor, CPF/CNPJ, QR Code e expressões-chave.
 
-Dados do destinatário (nome, CPF/CNPJ)
+---
 
-Valor da transação
+## ⚙️ Tecnologias Utilizadas
 
-Data e hora
+- 🟨 Node.js
+- 🧠 Tesseract.js (OCR via JavaScript)
+- 🧾 Arquivos `.traineddata` locais (Português e Inglês)
+- 🖼️ Processamento de imagem
+- 📡 Express (ou servidor HTTP equivalente)
 
-Identificação do banco emissor (ex: Banco do Brasil)
+---
 
-Texto-chave como "Pix", "Comprovante", "Transferência", entre outros
+## 🚀 Funcionalidades Disponíveis
 
-🚀 Funcionalidades
-✅ Upload de imagem e retorno de validação (true/false)
+- ✅ Validação automática de comprovantes Pix por imagem
+- 🔎 Extração de texto com OCR (suporte a `por.traineddata` e `eng.traineddata`)
+- 🧠 Análise de padrões visuais e textuais
+- 🛡️ Resposta com veredicto (`true/false`) e justificativas
 
-🔎 Extração de dados textuais com OCR
+---
 
-🧠 Validação baseada em padrões de layout e conteúdo do Banco do Brasil
+## 📂 Estrutura do Projeto
 
-📊 Log detalhado do motivo da validação positiva ou negativa
+```bash
+/
+├── index.js                  # Ponto de entrada da API
+├── package.json              # Configurações e scripts NPM
+├── eng.traineddata           # Dados OCR para inglês
+├── por.traineddata           # Dados OCR para português
+├── public/                   # (opcional) assets públicos
+└── README.md                 # Você está aqui!
